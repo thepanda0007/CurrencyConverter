@@ -11,7 +11,6 @@ import {
 import api from "../services/api";
 
 function TrendChart({ from, to }) {
-  const [days, setDays] = useState(7);
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -26,7 +25,7 @@ function TrendChart({ from, to }) {
           params: {
             from_currency: from,
             to_currency: to,
-            days,
+            days: 30,
           },
         });
 
@@ -40,42 +39,22 @@ function TrendChart({ from, to }) {
 
         setData(formatted);
       } catch {
-        setError("Unable to load trend data.");
+        setError("Unable to load 30-day trend.");
       } finally {
         setLoading(false);
       }
     };
 
     fetchTrend();
-  }, [from, to, days]);
-
-  const options = [7, 30, 90];
+  }, [from, to]);
 
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-5">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-xl font-semibold">Exchange Rate Trend</h2>
-          <p className="text-sm text-gray-500">
-            {from} → {to}
-          </p>
-        </div>
-
-        <div className="flex rounded-lg border border-gray-200 overflow-hidden">
-          {options.map((option) => (
-            <button
-              key={option}
-              onClick={() => setDays(option)}
-              className={`px-3 py-2 text-sm transition ${
-                days === option
-                  ? "bg-blue-600 text-white"
-                  : "bg-white hover:bg-gray-100"
-              }`}
-            >
-              {option}D
-            </button>
-          ))}
-        </div>
+      <div>
+        <h2 className="text-xl font-semibold">30-Day Exchange Rate Trend</h2>
+        <p className="text-sm text-gray-500">
+          {from} → {to}
+        </p>
       </div>
 
       {loading ? (
@@ -86,11 +65,8 @@ function TrendChart({ from, to }) {
         <ResponsiveContainer width="100%" height={260}>
           <LineChart data={data}>
             <XAxis dataKey="date" tick={{ fontSize: 12 }} />
-
             <YAxis tick={{ fontSize: 12 }} domain={["auto", "auto"]} />
-
             <Tooltip />
-
             <Line
               type="monotone"
               dataKey="rate"
